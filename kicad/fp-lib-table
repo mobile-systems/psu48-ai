@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "psu48")(type "KiCad")(uri "${KIPRJMOD}/psu48.pretty")(options "")(descr "PSU48 custom footprints"))
+)

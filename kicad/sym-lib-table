@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "psu48_lib")(type "KiCad")(uri "${KIPRJMOD}/psu48_lib.kicad_sym")(options "")(descr "PSU48 custom symbols"))
+)
