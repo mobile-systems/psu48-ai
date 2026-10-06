@@ -241,6 +241,35 @@ def build_relay():
                        pin_names_hide=True)
 
 
+def build_ucc24624():
+    pins = [
+        pin("output", -7.62, 3.81, 0, 2.54, "VG1", "1"),
+        pin("power_in", -7.62, 1.27, 0, 2.54, "PGND", "2"),
+        pin("power_out", -7.62, -1.27, 0, 2.54, "REG", "3"),
+        pin("input", -7.62, -3.81, 0, 2.54, "VD1", "4"),
+        pin("passive", 7.62, -3.81, 180, 2.54, "VSS", "5"),
+        pin("input", 7.62, -1.27, 180, 2.54, "VD2", "6"),
+        pin("power_in", 7.62, 1.27, 180, 2.54, "VDD", "7"),
+        pin("output", 7.62, 3.81, 180, 2.54, "VG2", "8"),
+    ]
+    graphics = [
+        rect(-5.08, 2.54, 5.08, -2.54),
+        line(-5.08, 2.54, -5.08, -2.54),
+        line(5.08, 2.54, 5.08, -2.54),
+    ]
+    props = [
+        prop("Reference", "U", 0, 5.08),
+        prop("Value", "UCC24624", 0, -5.08),
+        prop("Footprint", "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm", 0, 0, 0, hide=True),
+        prop("Datasheet", "https://www.ti.com/lit/ds/symlink/ucc24624.pdf",
+             0, 0, 0, hide=True),
+        prop("Description",
+             "Dual-channel synchronous rectifier controller for LLC converters, "
+             "230V VD sense, 8-pin SOIC", 0, 0, 0, hide=True),
+    ]
+    return make_symbol("UCC24624", pins, graphics, props, pin_names_hide=True)
+
+
 def write_sym_lib():
     os.makedirs(KICAD_DIR, exist_ok=True)
     power = parse(open(os.path.join(SYM_DIR, "power.kicad_sym"),
@@ -262,6 +291,7 @@ def write_sym_lib():
     lib.append(build_tllc())
     lib.append(build_taux())
     lib.append(build_relay())
+    lib.append(build_ucc24624())
     path = os.path.join(KICAD_DIR, "psu48_lib.kicad_sym")
     with open(path, "w", encoding="utf-8", newline="\n") as f:
         f.write(dumps(lib) + "\n")
