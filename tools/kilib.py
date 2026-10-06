@@ -51,7 +51,15 @@ def merge_derived(base, derived, name):
     graphics/pins from base) into a standalone symbol node."""
     from sexp import dumps
     out = parse(dumps(base))
+    base_name = unq(out[1])
     out[1] = Raw(Q(name))
+    if base_name != name:
+        pref = base_name + "_"
+        for c in out[2:]:
+            if isinstance(c, list) and str(c[0]) == "symbol":
+                sn = unq(c[1])
+                if sn.startswith(pref):
+                    c[1] = Raw(Q(name + "_" + sn[len(pref):]))
     # drop base properties that the derived symbol overrides / any extends
     dprops = {}
     for p in findall(derived, "property"):
@@ -152,8 +160,8 @@ def units_of(lib_id):
     return sorted(us)
 
 
-def bbox_of(lib_id):
-    """Approximate graphical bounding box in library coordinates."""
+def bbox_of(lib_id, unit=None):
+    """Graphical bounding box in library coordinates; unit restricts sub-symbols."""
     lib, name = lib_id_split(lib_id)
     sym, _ = load_symbol(lib, name)
     xs, ys = [], []
@@ -162,6 +170,13 @@ def bbox_of(lib_id):
         for c in node:
             if isinstance(c, list) and c:
                 tag = str(c[0])
+                if tag == "symbol" and c is not sym:
+                    m = re.match(r".*_(\d+)_(\d+)$", unq(c[1]))
+                    if m:
+                        u = int(m.group(1))
+                        if unit is None or u in (0, unit):
+                            walk(c)
+                        continue
                 if tag in ("rectangle",):
                     s, e = find(c, "start"), find(c, "end")
                     xs.extend([float(unq(s[1])), float(unq(e[1]))])
@@ -172,10 +187,17 @@ def bbox_of(lib_id):
                         xs.append(float(unq(xy[1])))
                         ys.append(float(unq(xy[2])))
                 elif tag == "circle":
-                    c0, e = find(c, "center"), find(c, "end")
-                    r = math.dist((float(unq(c0[1])), float(unq(c0[2]))),
-                                  (float(unq(e[1])), float(unq(e[2]))))
+                    c0 = find(c, "center")
+                    e = find(c, "end")
+                    rad = find(c, "radius")
                     cx, cy = float(unq(c0[1])), float(unq(c0[2]))
+                    if rad is not None:
+                        r = float(unq(rad[1]))
+                    elif e is not None:
+                        r = math.dist((cx, cy),
+                                      (float(unq(e[1])), float(unq(e[2]))))
+                    else:
+                        r = 0.0
                     xs.extend([cx - r, cx + r])
                     ys.extend([cy - r, cy + r])
                 elif tag == "arc":
