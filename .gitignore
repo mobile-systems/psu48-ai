@@ -1,0 +1,15 @@
+# .gitignore for KiCad project
+
+# KiCad backups and caches
+*.kicad_sch-bak
+*.kicad_pcb-bak
+*-bak
+_autosave-*
+*.lck
+*.tmp
+fp-info-cache
+*.kicad_prl
+
+# OS
+Thumbs.db
+Desktop.ini
